@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Sertikom - Manajemen Sertikom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        label { font-size: 0.88rem; font-weight: 600; color: #334155; }
+        input[type="text"], input[type="email"], select { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; outline: none; }
+        .file-upload-box { border: 2px dashed #cbd5e1; padding: 20px; border-radius: 8px; text-align: center; background-color: #f8fafc; cursor: pointer; display: block; }
+        .file-upload-box input[type="file"] { display: none; }
+        
+        /* Alert Modal & Toast (F007) */
+        .alert-box { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+        .alert-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        .modal-content { background: #fff; padding: 24px; border-radius: 12px; max-width: 500px; width: 90%; }
+        .hidden { display: none !important; }
+
+        /* Styling tambahan untuk list info skema */
+        .info-list { margin-top: 10px; font-size: 0.85rem; color: #475569; background: #f1f5f9; padding: 12px; border-radius: 8px; }
+        .info-list p { margin: 4px 0; }
+    </style>    
+</head>
+<body>
+
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div><span style="color: #64748b; font-size: 0.85rem;">Peserta / Pendaftaran</span></div>
+            <div class="user-profile">
+                <div class="user-avatar">RR</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.9rem;">Radja Rafa A.</div>
+                    <div style="font-size: 0.75rem; color: #64748b;">NIM: 4342601065</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="page-header">
+                <h2>Formulir Pendaftaran Sertifikasi Kompetensi</h2>
+                <p>Isi data diri dan pilih skema sertifikasi sesuai minat Anda.</p>
+            </div>
+
+            <!-- F007: Alert Peringatan Kuota Habis -->
+            <div id="quotaAlert" class="alert-box alert-warning hidden">
+                <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+                <span><strong>Peringatan:</strong> Kuota untuk skema yang dipilih telah habis! Pendaftaran tidak dapat dilanjutkan.</span>
+            </div>
+
+            <form id="registrationForm" onsubmit="handleFormSubmit(event)">
+                <div class="card">
+                    <h3 class="section-title"><i class="fa-solid fa-user"></i> Data Diri Peserta</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" value="Radja Rafa Alfathir" readonly style="background-color:#f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>NIM</label>
+                            <input type="text" value="4342601065" readonly style="background-color:#f8fafc;">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Student</label>
+                            <input type="email" value="radjarafa28@gmail.com" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- F003 & F004 & F006: Pemilihan & Detail Skema -->
+                <div class="card">
+                    <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Skema Sertifikasi Jurusan</h3>
+                    <div class="form-group">
+                        <label for="schemeSelect">Pilih Skema Sertikom</label>
+                        <select id="schemeSelect" onchange="checkQuotaAndDetail()" required>
+                            <option value="" disabled selected>-- Pilih Skema Sertikom --</option>
+                            <!-- Daftar Seluruh Skema Sertikom Jurusan -->
+                            <option value="web" data-quota="12" data-desc="Menguji kompetensi pemrograman web front-end dan back-end berbasis standar industri." data-req="KTM, Transkrip Nilai Pemrograman Web (Min. B)" data-date="15 Oktober 2026">Junior Web Developer (Sisa Kuota: 12)</option>
+                            <option value="net" data-quota="0" data-desc="Menguji kompetensi instalasi, perancangan, dan konfigurasi jaringan LAN/WAN." data-req="KTM, Sertifikat Jaringan Dasar" data-date="20 Oktober 2026">Network Engineer (Sisa Kuota: 0 - Penuh)</option>
+                            <option value="data" data-quota="8" data-desc="Menguji kemampuan analisis data, pengelolaan database SQL, dan visualisasi data." data-req="KTM, Transkrip Nilai Basis Data" data-date="22 Oktober 2026">Data Analyst (Sisa Kuota: 8)</option>
+                            <option value="cyber" data-quota="5" data-desc="Menguji pengetahuan keamanan siber, analisis kerentanan, dan enkripsi data." data-req="KTM, Sertifikat Keamanan Informasi" data-date="25 Oktober 2026">Cyber Security Analyst (Sisa Kuota: 5)</option>
+                            <option value="mobile" data-quota="15" data-desc="Menguji pengembangan aplikasi Android/iOS menggunakan framework modern." data-req="KTM, Portofolio Aplikasi Mobile" data-date="28 Oktober 2026">Mobile Application Developer (Sisa Kuota: 15)</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn-outline" onclick="openDetailModal()">
+                        <i class="fa-solid fa-circle-info"></i> Lihat Detail Info Sertikom
+                    </button>
+                </div>
+
+                <!-- F005: Upload Berkas -->
+                <div class="card">
+                    <h3 class="section-title"><i class="fa-solid fa-folder-open"></i> Unggah Berkas Persyaratan</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Pasfoto Formal (Latar Merah/Biru)</label>
+                            <label class="file-upload-box">
+                                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color:#0284c7; margin-bottom:8px;"></i>
+                                <p style="font-size:0.85rem; color:#64748b;">Klik/seret file JPG/PNG (Maks 2MB)</p>
+                                <input type="file" id="photoInput" accept="image/*" required>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Scan KTM</label>
+                            <label class="file-upload-box">
+                                <i class="fa-solid fa-address-card" style="font-size: 1.8rem; color:#0284c7; margin-bottom:8px;"></i>
+                                <p style="font-size:0.85rem; color:#64748b;">Klik/seret file PDF/JPG (Maks 2MB)</p>
+                                <input type="file" id="ktmInput" accept=".pdf,image/*" required>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- F008: Auto Close Submit -->
+                <div style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="submit" id="submitBtn" class="btn"><i class="fa-solid fa-paper-plane"></i> Kirim Pendaftaran</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- F004: Modal Detail Sertikom -->
+    <div id="detailModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="mTitle" style="color:#0284c7; margin-bottom:12px;">Detail Sertikom</h3>
+            <p style="font-size:0.9rem; margin-bottom:8px;"><strong>Deskripsi:</strong> <span id="mDesc">-</span></p>
+            <p style="font-size:0.9rem; margin-bottom:8px;"><strong>Jadwal Pelaksanaan:</strong> <span id="mDate">-</span></p>
+            <p style="font-size:0.9rem; margin-bottom:8px;"><strong>Persyaratan:</strong> <span id="mReq">-</span></p>
+            <p style="font-size:0.9rem; margin-bottom:16px;"><strong>Sisa Kuota:</strong> <span id="mQuota">-</span></p>
+            <button type="button" class="btn-primary" onclick="closeDetailModal()">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        fetch('sidebar.html').then(res => res.text()).then(data => {
+            document.getElementById('sidebar-container').innerHTML = data;
+            document.getElementById('menu-pendaftaran').classList.add('active');
+        });
+
+        // F006, F007, F008: Logika Validasi Kuota dan Penutupan Otomatis
+        function checkQuotaAndDetail() {
+            const select = document.getElementById('schemeSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const quota = parseInt(selectedOption.getAttribute('data-quota') || '0');
+            const alertBox = document.getElementById('quotaAlert');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (quota <= 0) {
+                alertBox.classList.remove('hidden'); // F007: Peringatan
+                submitBtn.disabled = true; // F008: Menutup pendaftaran
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+            } else {
+                alertBox.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        }
+
+        // F004: Modal Detail Info
+        function openDetailModal() {
+            const select = document.getElementById('schemeSelect');
+            if (!select.value) { 
+                alert("Pilih skema sertikom terlebih dahulu!"); 
+                return; 
+            }
+            const opt = select.options[select.selectedIndex];
+            
+            // Mengambil teks nama skema tanpa teks sisa kuota
+            const schemeName = opt.text.split(' (Sisa Kuota:')[0];
+            
+            document.getElementById('mTitle').innerText = schemeName;
+            document.getElementById('mDesc').innerText = opt.getAttribute('data-desc');
+            document.getElementById('mDate').innerText = opt.getAttribute('data-date');
+            document.getElementById('mReq').innerText = opt.getAttribute('data-req');
+            document.getElementById('mQuota').innerText = opt.getAttribute('data-quota') + " Peserta";
+            
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // F005: Simpan Pendaftaran
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            alert("Pendaftaran berhasil disimpan ke sistem!");
+            window.location.href = "dashboard_peserta.html";
+        }
+
+        function handleFormSubmit(e) {
+        e.preventDefault();
+        const select = document.getElementById('schemeSelect');
+        const quota = parseInt(select.options[select.selectedIndex].getAttribute('data-quota') || '0');
+
+        if (quota <= 0) {
+            alert("Pendaftaran gagal: Kuota skema ini sudah habis.");
+            return;
+        }
+
+        alert("Pendaftaran berhasil disimpan ke sistem!");
+        window.location.href = "dashboard_peserta.html";
+    }
+    </script>
+</body>
+</html>     

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Dashboard Operator - Manajemen Sertikom</title>
+    <style>
+      
+    </style>
+</head>
+<body>
+
+<section id="admin" class="page role-page active">
+    <!-- PAGE HEADER -->
+    <div class="page-head">
+        <div>
+            <span class="role-label admin-label">ADMIN / OPERATOR</span>
+            <h1>Dashboard Operator Jurusan</h1>
+            <p>Kelola sertikom, verifikasi berkas pendaftar, dan rekapitulasi data.</p>
+        </div>
+        <div class="head-actions">
+            <!-- Penulisan sintaks onclick yang salah sebelumnya disesuaikan -->
+            <button class="btn-secondary" onclick="exportDataData('csv')">
+                <i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> Ekspor CSV/Excel
+            </button>
+            <button class="btn-primary" onclick="openCourseForm()">
+                <i class="fa-solid fa-plus"></i> Tambah Sertikom
+            </button>
+        </div>
+    </div>
+
+    <!-- TABEL VERIFIKASI BERKAS PESERTA -->
+    <div class="card admin-table-card">
+        <div class="card-head">
+            <div>
+                <span class="label">VERIFIKASI BERKAS</span>
+                <h3>Daftar Berkas Pendaftaran Peserta</h3>
+            </div>
+            <span class="count-badge" id="pendingCount">2 Perlu Diperiksa</span>
+        </div>
+        
+        <div class="simple-table table-verifikasi">
+            <div class="simple-row table-title">
+                <span>NIM & Nama</span>
+                <span>Skema Sertikom</span>
+                <span>Berkas Persyaratan</span>
+                <span>Status Berkas</span>
+                <span>Aksi Verifikasi</span>
+            </div>
+            
+            <div class="simple-row" id="row-1">
+                <div>
+                    <b>Radja Rafa A.</b><br>
+                    <small style="color:#64748b;">4342601065</small>
+                </div>
+                <span>Junior Web Developer</span>
+                <div class="action-group">
+                    <button class="btn-action-view" onclick="previewFile('KTM_Radja.pdf')"><i class="fa-solid fa-file-pdf"></i> KTM</button>
+                    <button class="btn-action-view" onclick="previewFile('Foto_Radja.jpg')"><i class="fa-solid fa-image"></i> Pasfoto</button>
+                </div>
+                <div><span class="badge-pending" id="status-1">Menunggu Verifikasi</span></div>
+                <div class="action-group">
+                    <button class="btn-action-approve" onclick="verifyDoc(1, 'Disetujui')"><i class="fa-solid fa-check"></i> Setujui</button>
+                    <button class="btn-action-reject" onclick="verifyDoc(1, 'Ditolak')"><i class="fa-solid fa-xmark"></i> Tolak</button>
+                </div>
+            </div>
+
+            <div class="simple-row" id="row-2">
+                <div>
+                    <b>Andi Pratama</b><br>
+                    <small style="color:#64748b;">4342601011</small>
+                </div>
+                <span>Junior Web Developer</span>
+                <div class="action-group">
+                    <button class="btn-action-view" onclick="previewFile('KTM_Andi.pdf')"><i class="fa-solid fa-file-pdf"></i> KTM</button>
+                    <button class="btn-action-view" onclick="previewFile('Foto_Andi.jpg')"><i class="fa-solid fa-image"></i> Pasfoto</button>
+                </div>
+                <div><span class="badge-pending" id="status-2">Menunggu Verifikasi</span></div>
+                <div class="action-group">
+                    <button class="btn-action-approve" onclick="verifyDoc(2, 'Disetujui')"><i class="fa-solid fa-check"></i> Setujui</button>
+                    <button class="btn-action-reject" onclick="verifyDoc(2, 'Ditolak')"><i class="fa-solid fa-xmark"></i> Tolak</button>
+                </div>
+            </div>
+
+            <div class="simple-row">
+                <div>
+                    <b>Salsa Ramadhani</b><br>
+                    <small style="color:#64748b;">4342601022</small>
+                </div>
+                <span>Database Administrator</span>
+                <div class="action-group">
+                    <button class="btn-action-view" onclick="previewFile('KTM_Salsa.pdf')"><i class="fa-solid fa-file-pdf"></i> KTM</button>
+                    <button class="btn-action-view" onclick="previewFile('Foto_Salsa.jpg')"><i class="fa-solid fa-image"></i> Pasfoto</button>
+                </div>
+                <div><span class="badge-approved">Disetujui</span></div>
+                <div class="done-text"><i class="fa-solid fa-circle-check"></i> Terverifikasi</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REKAP JUMLAH DAN DAFTAR PESERTA -->
+    <div class="card admin-table-card">
+        <div class="card-head">
+            <div>
+                <span class="label">REKAPITULASI JURUSAN</span>
+                <h3>Daftar Peserta Terdaftar per Jenis Sertikom</h3>
+            </div>
+            <button class="btn-secondary" onclick="exportDataData('pdf')">
+                <i class="fa-solid fa-file-pdf" style="color: #dc2626;"></i> Ekspor PDF
+            </button>
+        </div>
+        
+        <div class="simple-table table-rekap">
+            <div class="simple-row table-title">
+                <span>NIM</span>
+                <span>Nama Peserta</span>
+                <span>Jenis Sertikom</span>
+                <span>Tanggal Daftar</span>
+                <span>Status Pendaftaran</span>
+            </div>
+            <div class="simple-row">
+                <span>4342601065</span>
+                <span>Radja Rafa A.</span>
+                <span>Junior Web Developer</span>
+                <span>01 Okt 2026</span>
+                <span class="done-text"><i class="fa-solid fa-circle-check"></i> Terverifikasi</span>
+            </div>
+            <div class="simple-row">
+                <span>4342601011</span>
+                <span>Andi Pratama</span>
+                <span>Junior Web Developer</span>
+                <span>02 Okt 2026</span>
+                <span class="done-text"><i class="fa-solid fa-circle-check"></i> Terverifikasi</span>
+            </div>
+            <div class="simple-row">
+                <span>4342601022</span>
+                <span>Salsa Ramadhani</span>
+                <span>Database Administrator</span>
+                <span>03 Okt 2026</span>
+                <span class="done-text"><i class="fa-solid fa-circle-check"></i> Terverifikasi</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGOUT BUTTON -->
+    <div class="logout-wrapper">
+        <a href="index.html" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Keluar / Logout</a>
+    </div>
+</section>
+
+<script>
+    // Fungsi Lihat Berkas
+    function previewFile(filename) {
+        alert("Membuka berkas: " + filename);
+    }
+
+    // Fungsi Verifikasi Berkas (Setujui / Tolak)
+    function verifyDoc(id, result) {
+        const statusElement = document.getElementById('status-' + id);
+        if (result === 'Disetujui') {
+            statusElement.className = 'badge-approved';
+            statusElement.innerText = 'Disetujui';
+            alert('Berkas peserta berhasil disetujui!');
+        } else {
+            statusElement.className = 'badge-rejected';
+            statusElement.innerText = 'Ditolak';
+            alert('Berkas peserta ditolak!');
+        }
+    }
+
+    // F010: Fungsi Ekspor Rekap Data Peserta
+    function exportDataData(format) {
+        alert("Sistem mengunduh Rekap Data Peserta Sertikom dalam format " + format.toUpperCase() + "...");
+    }
+
+    // Placeholder fungsi Tambah Sertikom
+    function openCourseForm() {
+        alert("Membuka formulir tambah Sertikom...");
+    }
+</script>
+</body>
+</html>
